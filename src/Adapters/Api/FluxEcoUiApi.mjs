@@ -1,6 +1,13 @@
 import {HttpBinding} from "../Core/Domain/ValueObjects/HttpBinding.mjs";
 
 /**
+ * @typedef {Object} TreeNode
+ * @property {string|null} parentId
+ * @property {string} nodeId
+ * @property {object} nodeData
+ */
+
+/**
  * @type FluxEcoUiApi
  */
 export class FluxEcoUiApi {
@@ -71,31 +78,16 @@ export class FluxEcoUiApi {
      *
      * @param {object} parentElement
      * @param {string}treeId
-     * @param {string|null} srcDataBindingId
-     * @param {string} srcDataEndpointPath
-     * @param {function} mapSrcDataToUiDataCallback
+     * @param {TreeNode[]} treeNodes
      */
     async renderTree(
         parentElement,
         treeId,
-        srcDataBindingId,
-        srcDataEndpointPath,
-        mapSrcDataToUiDataCallback
+        treeNodes
     ) {
-        let endpoint = srcDataEndpointPath;
-        if (srcDataBindingId) {
-            const baseUrl = await this.#bindings.get(srcDataBindingId).baseUrl;
-            endpoint = [baseUrl, srcDataEndpointPath].join("");
-        }
-
-        //todo type based handler for data fetching
-        const response = await (await fetch(endpoint, {assert: {type: 'json'}}));
-        const srcData = await response.json();
-        console.log(srcData);
-        const uiData = await mapSrcDataToUiDataCallback(srcData);
 
         const nodeSchema = {"type": "object", "properties": {"label": {"type": "string"}}};
         const renderTreeOnNodesProvidedCallback = await this.#treeManager.createRenderTreeOnNodesProvidedCallback(parentElement, treeId, nodeSchema, false);
-        renderTreeOnNodesProvidedCallback(uiData);
+        renderTreeOnNodesProvidedCallback(treeNodes);
     }
 }
