@@ -6,6 +6,8 @@ import {FluxEcoUiApi} from "../src/Adapters/Api/FluxEcoUiApi.mjs";
 
 const api = await FluxEcoUiApi.new();
 
+await api.toggleLogStatusEnabled();
+
 
 const parentElement = document.body;
 const treeId = "123";

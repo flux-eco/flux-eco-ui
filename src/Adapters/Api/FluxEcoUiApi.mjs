@@ -1,4 +1,5 @@
 import {HttpBinding} from "../Core/Domain/ValueObjects/HttpBinding.mjs";
+import {FluxEcoUiState} from "../Core/Domain/ValueObjects/FluxEcoUiState.mjs";
 
 /**
  * @typedef {Object} TreeNode
@@ -12,6 +13,10 @@ import {HttpBinding} from "../Core/Domain/ValueObjects/HttpBinding.mjs";
  */
 export class FluxEcoUiApi {
     name = "flux-eco-ui";
+    /**
+     * @var {FluxEcoUiState}
+     */
+    #fluxEcoUiState;
     /**
      * @var {FluxEcoUiStateBroadcasterApi}
      */
@@ -33,6 +38,7 @@ export class FluxEcoUiApi {
         stateBroadcaster,
         treeManager
     ) {
+        this.#fluxEcoUiState = FluxEcoUiState.new({logEnabled: false})
         this.#stateBroadcaster = stateBroadcaster;
         this.#treeManager = treeManager;
         this.#bindings = new Map();
@@ -73,6 +79,24 @@ export class FluxEcoUiApi {
             protocol, host, port, security
         ));
     }
+
+    async toggleLogStatusEnabled() {
+        this.#fluxEcoUiState.status.logEnabled = !this.#fluxEcoUiState.status.logEnabled;
+        await this.#applyLogStatusEnabledToggled();
+    }
+
+    async #applyLogStatusEnabledToggled() {
+        if (this.#fluxEcoUiState.status.logEnabled === true) {
+            this.#stateBroadcaster.registerOnPublishLogger(
+                this.name, (idPath, newState, oldState) => console.log(
+                    {idPath: idPath, newState: newState, oldState: oldState}
+                )
+            )
+        } else {
+            this.#stateBroadcaster.unregisterOnPublishLogger(this.name);
+        }
+    }
+
 
     /**
      *
