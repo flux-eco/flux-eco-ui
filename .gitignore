@@ -1,6 +1,8 @@
-/*
+*
+!bin
 !.gitignore
 !LICENSE
 !README.md
-!src
-!bin
+!CHANGELOG.md
+!metadata.json
+
